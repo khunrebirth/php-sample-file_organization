@@ -1,5 +1,8 @@
 <?php
 
+require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/validation.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') 
 {
   /****************************************
@@ -24,16 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
        !empty($txtDescription) ) {
 
     // VALIDATE TIME
-    if ($time = strtotime($txtDate)) {
-      echo $time;
-    }
+    $date = validateDate($txtDate);
 
     // VALIDATE EMAIL
     if (filter_var($txtEmail, FILTER_VALIDATE_EMAIL)) {
-      echo $txtEmail;
+      echo "<p>$txtEmail</p>";
     }
 
     // SANITIZE OUTPUT
-    echo htmlspecialchars($txtDescription);
+    echo "<p>htmlspecialchars($txtDescription)</p>";
   }
 }
