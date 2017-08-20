@@ -1,7 +1,9 @@
 <?php
 
 require __DIR__ . '/../../vendor/autoload.php';
-require __DIR__ . '/validation.php';
+
+use Respect\Validation\Validator;
+use Respect\Validation\Exceptions\NestedValidationException;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') 
 {
@@ -21,20 +23,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
   $txtEmail       = trim($_POST['email']);
   $txtDescription = trim($_POST['desc']);
 
-  // PROCESS DATA(s)
-  if ( !empty($txtDate) && 
-       !empty($txtEmail) && 
-       !empty($txtDescription) ) {
+  // VALIDATE DATA(s)
+  $dateValidator  = Validator::date('d-m-Y')->notEmpty();
+  $emailValidator = Validator::email()->notEmpty();
+  $descValidator  = Validator::stringType()->length(1, 750);
+  
+  try {
+    $dateValidator->assert($txtDate);
+    $emailValidator->assert($txtEmail);
+    $descValidator->assert($txtDescription);
 
-    // VALIDATE TIME
-    $date = validateDate($txtDate);
+    echo date('F jS Y', strtotime($txtDate));
+    echo $txtEmail;
+    echo $txtDescription;
 
-    // VALIDATE EMAIL
-    if (filter_var($txtEmail, FILTER_VALIDATE_EMAIL)) {
-      echo "<p>$txtEmail</p>";
+  } catch (NestedValidationException $e) {
+    foreach ($e->getMessages() as $message) {
+      echo "<article class='message is-danger'>
+              <div class='message-header'>
+                <p>Message</p>
+                <button class='delete' aria-label='delete'></button>
+              </div>
+              <div class='message-body'>
+                $message
+              </div>
+            </article>";
     }
-
-    // SANITIZE OUTPUT
-    echo "<p>htmlspecialchars($txtDescription)</p>";
   }
+
 }
