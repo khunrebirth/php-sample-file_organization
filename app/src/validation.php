@@ -1,12 +1,19 @@
 <?php
 
 use Respect\Validation\Validator;
+use Respect\Validation\Exceptions\NestedValidationException;
 
 function validateDate($dateString)
 {
- if ($time = strtotime($dateString)) {
-   return date('F jS Y', $time);
- } else {
-   return "$dateString dose not look valid.";
- }
+  
+  $dateValidator = Validator::date('d-m-Y')->notEmpty();
+
+  try {
+    $dateValidator->assert($dateString);    
+    $dateTime = strtotime($dateString);
+    return date('F jS Y', $dateTime);
+  } catch (NestedValidationException $e) {
+    return $e->getMessages();
+  }
+
 }
